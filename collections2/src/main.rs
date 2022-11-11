@@ -70,7 +70,7 @@ fn main() {
     //     println!("{}", j);
     // }
 
-    // let mut scores = HashMap::new();
+    let mut scores = HashMap::new();
     // let blue = String::from("Blue");
     // let yellow = String::from("Yellow");
     // scores.insert(blue, 10);
@@ -84,13 +84,13 @@ fn main() {
     //     println!("{}: {}", key, value);
     // }
 
-    //     scores.insert(String::from("Blue"), 10);
-    //     scores.insert(String::from("Blue"), 20);
-    //     scores.entry(String::from("Yellow")).or_insert(30);
-    //     scores.entry(String::from("Yellow")).or_insert(40);
-    //     for (key, value) in &scores {
-    //         println!("{}: {}", key, value);
-    //     }
+        scores.insert(String::from("Blue"), 10);
+        scores.insert(String::from("Blue"), 20);
+        scores.entry(String::from("Yellow")).or_insert(30);
+        scores.entry(String::from("Yellow")).or_insert(40);
+        for (key, value) in &scores {
+            println!("{}: {}", key, value);
+        }
 
     let text = "hello world wonderful world";
     let mut map = HashMap::new();
