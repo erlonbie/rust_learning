@@ -17,37 +17,6 @@ where
     value: Option<u32>,
 }
 
-struct Cacher2<T>
-where
-    T: Fn(T) -> T + std::hash::Hash + std::cmp::Eq,
-{
-    calculation: T,
-    meu_hash: Option<HashMap<T, T>>,
-}
-
-impl<T> Cacher2<T>
-where
-    T: Fn(T) -> T + std::hash::Hash + std::cmp::Eq,
-{
-    fn new(calculation: T) -> Self {
-        Self {
-            calculation,
-            meu_hash: None,
-        }
-    }
-
-    fn value(&mut self, arg: T) -> T {
-        match self.meu_hash.expect("Nao funcionou!").get(&arg) {
-            Some(v) => *v,
-            None => {
-                let v = (self.calculation)(arg);
-                self.meu_hash.expect("Nao funconou 2").entry(arg).or_insert(v);
-                v
-            }
-        }
-    }
-}
-
 impl<T> Cacher<T>
 where
     T: Fn(u32) -> u32,
@@ -69,6 +38,111 @@ where
         }
     }
 }
+
+struct Cacher2<T>
+where
+    // T: Fn(u32) -> u32,
+    T: Fn(u32) -> u32 + std::hash::Hash + std::cmp::Eq,
+    // T: Copy,
+{
+    calculation: T,
+    meu_hash: Option<HashMap<T, T>>,
+}
+
+impl<T> Cacher2<T>
+where
+    // T: Fn(u32) -> u32,
+    T: Fn(u32) -> u32 + std::hash::Hash + std::cmp::Eq,
+{
+    fn new(calculation: T) -> Self {
+        Self {
+            calculation,
+            meu_hash: Some(HashMap::new()),
+        }
+    }
+
+    fn value(&mut self, arg: T) -> T {
+        match self.meu_hash {
+            Some(m) => match m.get(&arg) {
+                Some(_v) => todo!(),
+                None => {
+                    let v = (self.calculation)(arg);
+                    self.meu_hash.expect("sadf").insert(arg, v);
+                    v
+                }
+            },
+            None => {
+                let v = (self.calculation)(arg);
+                self.meu_hash = Some(HashMap::new());
+                self.meu_hash.as_mut().expect("ASHAKSJH").insert(arg, v);
+                v
+            }
+        }
+    }
+}
+
+// struct Cacher2<T>
+// where
+//     T: Fn(T) -> T + std::hash::Hash + std::cmp::Eq,
+//     T: Copy,
+// {
+//     calculation: T,
+//     meu_hash: Option<HashMap<T, T>>,
+// }
+//
+// impl<T> Cacher2<T>
+// where
+//     T: Fn(T) -> T + std::hash::Hash + std::cmp::Eq,
+//     T: Copy,
+// {
+//     fn new(calculation: T) -> Self {
+//         Self {
+//             calculation,
+//             meu_hash: None,
+//         }
+//     }
+// }
+
+// impl<T> Cacher2<T> {
+//     fn new(calculation: T) -> Self {
+//         Self {
+//             calculation,
+//             meu_hash: None,
+//         }
+//     }
+// }
+
+// impl<T> Cacher2<T>
+// where
+//     T: Fn(T) -> T + std::hash::Hash + std::cmp::Eq,
+//     T: Copy,
+// {
+//     // fn new(calculation: T) -> Self {
+//     //     Self {
+//     //         calculation,
+//     //         meu_hash: None,
+//     //     }
+//     // }
+//
+//     fn value(&mut self, arg: T) -> T {
+//         match &self.meu_hash {
+//             Some(m) => match m.get(&arg) {
+//                 Some(_v) => todo!(),
+//                 None => {
+//                     let v = (self.calculation)(arg);
+//                     self.meu_hash.as_mut().expect("ASHAKSJH22").insert(arg, v);
+//                     v
+//                 }
+//             },
+//             None => {
+//                 let v = (self.calculation)(arg);
+//                 self.meu_hash = Some(HashMap::new());
+//                 self.meu_hash.as_mut().expect("ASHAKSJH").insert(arg, v);
+//                 v
+//             }
+//         }
+//     }
+// }
 
 fn generate_workout(intensity: u32, random_number: u32) {
     let mut cached_result = Cacher::new(|num| {
