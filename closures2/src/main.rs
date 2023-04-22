@@ -20,6 +20,20 @@ fn main() {
     println!("{v1:?}");
     println!("{v2:?}");
     let v3 = v2.iter().map(|x| x + 1).collect::<Vec<i32>>();
-    println!("{v3:?}");
     println!("{v2:?}");
+    // println!("{v3:?}");
+
+    let line = "1 erlon 2020-01-01".to_string();
+    // let tokens = line.split_whitespace().collect::<Vec<&str>>();
+    let tokens = line.split_whitespace().map(|w| w.to_string()).collect::<Vec<String>>();
+    println!("{tokens:?}");
+    // let enumer = tokens.iter().enumerate().collect::<Vec<(usize, &&str)>>();
+    let mut enumer = tokens.iter().enumerate().collect::<Vec<(usize, &String)>>();
+    println!("{enumer:?}");
+    
+    let binding = "Liloca".to_string();
+    enumer[0].1 = &binding;
+    println!("{tokens:?}");
+    println!("{enumer:?}");
+
 }
