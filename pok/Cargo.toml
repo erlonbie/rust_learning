@@ -1,0 +1,19 @@
+[package]
+name = "dex"
+description = "Pokedex cli"
+authors = ["Erlon Bié <erlonminievix@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+categories = ["command-line-utilities"]
+keywords = ["pokedex", "pokeapi", "pokemon"]
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+console="0.15.5"
+clap="2.34.0"
+reqwest={ version = "0.11.18", features = ["json", "blocking"] }
+serde={ version = "1.0.163", features = ["derive"] }
+serde_json="1.0.96"

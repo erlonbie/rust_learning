@@ -1,51 +1,69 @@
-use std::io;
-use std::error::Error;
-use postgres::{Connection, TlsMode};
+use postgres::{Client, NoTls};
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Person {
+#[derive(Debug)]
+struct User {
     id: i32,
     name: String,
-    age: i32,
+    email: String,
 }
-fn create_person(conn: &Connection, name: &str, age: i32) -> Result<(), Box<dyn Error>> {
 
-    let stmt = conn.prepare("INSERT INTO person (name, age) VALUES ($1, $2)")?;
-    let _ = stmt.execute(&[&name, &age])?;
+fn establish_connection() -> Result<Client, postgres::Error> {
+    let connection_string = "host=postgres user=user password=mypassword dbname=crud_test_rust";
+    let client = Client::connect(connection_string, NoTls)?;
+    Ok(client)
+}
+
+fn create_user(client: &mut Client, name: &str, email: &str) -> Result<(), postgres::Error> {
+    client.execute(
+        "INSERT INTO users (name, email) VALUES ($1, $2)",
+        &[&name, &email],
+    )?;
     Ok(())
 }
 
-fn read_person(conn: &Connection, id: i32) -> Result<Person, Box<dyn Error>> {
-    let stmt = conn.prepare("SELECT id, name, age FROM person WHERE id = $1")?;
-    let rows = stmt.query(&[&id])?;
-    let row = rows.get(0);
-    Ok(Person {
-        id: row.get(0),
-        name: row.get(1),
-        age: row.get(2),
-    })
+fn read_users(client: &mut Client) -> Result<Vec<User>, postgres::Error> {
+    let rows = client.query("SELECT id, name, email FROM users", &[])?;
+    let users: Vec<User> = rows
+        .iter()
+        .map(|row| User {
+            id: row.get(0),
+            name: row.get(1),
+            email: row.get(2),
+        })
+        .collect();
+    Ok(users)
 }
 
-fn update_person(conn: &Connection, id: i32, name: &str, age: i32) -> Result<(), Box<dyn Error>> {
-    let stmt = conn.prepare("UPDATE person SET name = $1, age = $2 WHERE id = $3")?;
-    let _ = stmt.execute(&[&name, &age, &id])?;
+fn update_user(client: &mut Client, id: i32, name: &str, email: &str) -> Result<(), postgres::Error> {
+    client.execute(
+        "UPDATE users SET name = $1, email = $2 WHERE id = $3",
+        &[&name, &email, &id],
+    )?;
     Ok(())
 }
 
-fn delete_person(conn: &Connection, id: i32) -> Result<(), Box<dyn Error>> {
-    let stmt = conn.prepare("DELETE FROM person WHERE id = $1")?;
-    let _ = stmt.execute(&[&id])?;
+fn delete_user(client: &mut Client, id: i32) -> Result<(), postgres::Error> {
+    client.execute("DELETE FROM users WHERE id = $1", &[&id])?;
     Ok(())
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let conn = Connection::connect("postgres://username:password@localhost:5432/dbname", TlsMode::None)?;
-    create_person(&conn, "John Doe", 30)?;
-    let person = read_person(&conn, 1)?;
-    println!("{:?}", person);
-    update_person(&conn, 1, "Jane Doe", 35)?;
-    let updated_person = read_person(&conn, 1)?;
-    println!("{:?}", updated_person);
-    delete_person(&conn, 1)?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut client = establish_connection()?;
+
+    // Create a user
+    create_user(&mut client, "John Doe", "john@example.com")?;
+
+    // Read all users
+    let users = read_users(&mut client)?;
+    for user in users {
+        println!("User: {:?}", user);
+    }
+
+    // Update a user
+    update_user(&mut client, 1, "John Smith", "john.smith@example.com")?;
+
+    // Delete a user
+    delete_user(&mut client, 1)?;
+
     Ok(())
 }
