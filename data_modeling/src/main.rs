@@ -52,7 +52,6 @@ impl Player {
     }
 
     fn collect(&mut self, power: Transitions) {
-        // based on current state and the power, write me acode that transtition throug marios's states
         match (&self.state, power) {
             (State::Mario, Transitions::Mushroom) => self.state = State::SuperMario,
             (_, Transitions::Flower) => self.state = State::FireMario,
