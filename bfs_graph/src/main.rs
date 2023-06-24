@@ -61,11 +61,9 @@ fn dfs(graph: &Graph, node: usize, visited: &mut Vec<bool>) {
 }
 
 fn main() {
-    // Example graph represented as an adjacency list
 
     let mut graph = Graph::new(7);
 
-    // Add edges to the graph
     graph.add_edge(0, 2);
     graph.add_edge(0, 1);
     graph.add_edge(1, 4);
@@ -76,7 +74,6 @@ fn main() {
 
     bfs(0, &graph);
 
-    // Check if an edge exists
     println!("Has edge 0 -> 1: {}", graph.has_edge(0, 1)); // true
     println!("Has edge 1 -> 3: {}", graph.has_edge(1, 3)); // true
     println!("Has edge 1 -> 4: {}", graph.has_edge(1, 4)); // true
