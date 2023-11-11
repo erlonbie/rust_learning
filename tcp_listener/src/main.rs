@@ -1,9 +1,8 @@
-use std::fmt;
 use std::fmt::{Display, Pointer};
-use std::io::Write;
-use std::io::{BufRead, BufReader};
+use std::io::{Read};
 use std::net::{TcpListener, TcpStream};
 use std::result;
+use std::sync::Arc;
 use std::{
     sync::mpsc::{channel, Receiver, Sender},
     thread,
@@ -26,20 +25,32 @@ type Result<T> = result::Result<T, ()>;
 // }
 
 enum Message {
-    ClientConnected,
-    ClientDisconected,
-    NewMessage
+    ClientConnected(Arc<TcpStream>),
+    ClientDisconected(Arc<TcpStream>),
+    NewMessage(Vec<u8>),
 }
 
-fn server() {
-
-}
-
-fn client(mut stream: TcpStream) {
-    let _ = writeln!(stream, "Ola, cliente!").map_err(|err| {
-        eprintln!("Could not write user message: {err}");
-    });
+fn server(messages: Receiver<Message>) {
     todo!()
+}
+
+fn client(mut stream: Arc<TcpStream>, messages: Sender<Message>) -> Result<()> {
+    messages.send(Message::ClientConnected(stream.clone())).map_err(|err| {
+        eprintln!("ERROR: could connect to the server thread: {err}");
+    })?;
+    let mut buffer = Vec::new();
+    buffer.resize(64, 0);
+    loop {
+        let n = stream.as_ref().read(&mut buffer).map_err(|err| {
+            eprintln!("ERROR: could not read messagem from the client: {err}");
+            let _ = messages.send(Message::ClientDisconected(stream.clone()));
+        })?;
+        messages
+            .send(Message::NewMessage(buffer[0..n].to_vec()))
+            .map_err(|err| {
+                eprintln!("ERROR: could connect to the server thread: {err}");
+            })?;
+    }
 }
 
 const SAFE_MODE: bool = true;
@@ -63,10 +74,16 @@ fn main() -> Result<()> {
         eprintln!("ERROR: could not bind {adress}: {err}");
     })?;
     println!("listening on {}", Sensitve(adress));
+
+    let (message_sender, message_receiver) = channel();
+    thread::spawn(|| server(message_receiver));
+
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
-                thread::spawn(|| client(stream));
+                let stream = Arc::new(stream);
+                let message_sender = message_sender.clone();
+                thread::spawn(|| client(stream, message_sender));
             }
             Err(err) => {
                 eprint!("Could not spawn a thread: {}", err);
