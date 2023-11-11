@@ -75,8 +75,7 @@ fn client(stream: Arc<TcpStream>, messages: Sender<Message>) -> Result<()> {
         .map_err(|err| {
             eprintln!("ERROR: could connect to the server thread: {err}");
         })?;
-    let mut buffer = Vec::new();
-    buffer.resize(64, 0);
+    let mut buffer = vec![0; 64];
     loop {
         let n = stream.as_ref().read(&mut buffer).map_err(|err| {
             eprintln!("ERROR: could not read messagem from the client: {err}");
@@ -84,10 +83,13 @@ fn client(stream: Arc<TcpStream>, messages: Sender<Message>) -> Result<()> {
                 author: stream.clone(),
             });
         })?;
+        let author_addr = stream.peer_addr().unwrap();
+        write!(buffer, "Message from {:?}", author_addr);
         messages
             .send(Message::NewMessage {
                 author: stream.clone(),
                 bytes: buffer[0..n].to_vec(),
+                // bytes: vec![b'A',b'B']
             })
             .map_err(|err| {
                 eprintln!("ERROR: could connect to the server thread: {err}");
