@@ -1,8 +1,23 @@
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
 use std::thread;
+use std::result;
 
-fn handle_client(stream: TcpStream) {
+type Result<T> = result::Result<T, ()>;
+
+fn handle_client(stream: TcpStream) -> Result<()> {
+    let mut reader = BufReader::new(&stream);
+    loop {
+        let mut buffer = String::new();
+        reader.read_line(&mut buffer).map_err(|err| {
+            eprintln!("ERROR: NOT UTF-8: {err}");
+        })?;
+        println!("Received message: {:?} | from: {}", buffer.trim(), stream.peer_addr().unwrap());
+        // TODO: Broadcast message to all clients
+    }
+}
+
+fn handle_server_messages(stream: TcpStream) {
     let mut reader = BufReader::new(&stream);
     loop {
         let mut buffer = String::new();
@@ -10,10 +25,9 @@ fn handle_client(stream: TcpStream) {
         if bytes_read == 0 {
             break;
         }
-        println!("Received message: {:?}", buffer.trim());
-        // TODO: Broadcast message to all clients
+        println!("{} abc", buffer.trim());
     }
-    println!("Client disconnected: {:?}", stream.peer_addr().unwrap());
+    println!("Disconnected from server");
 }
 
 fn start_server(port: u32) {
@@ -22,20 +36,15 @@ fn start_server(port: u32) {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
         println!("New client connected: {:?}", stream.peer_addr().unwrap());
-        let stream_clone = stream.try_clone().unwrap();
+        // let stream_clone = stream.try_clone().unwrap();
         thread::spawn(move || {
-            handle_client(stream_clone);
+            let _ = handle_client(stream);
         });
     }
 }
 
 fn start_client(server: &str, port: u32) {
     let mut stream = TcpStream::connect(format!("{}:{}", server, port)).expect("Couldn't connect to the server");
-    // if let Ok(stream) = TcpStream::connect(format!("{}:{}", server, port)) {
-    //     println!("Connected to the server!");
-    // } else {
-    //     println!("Couldn't connect to server...");
-    // }
     println!("Connected to server {}:{}", server, port);
     let stream_clone = stream.try_clone().unwrap();
     thread::spawn(move || {
@@ -53,23 +62,15 @@ fn start_client(server: &str, port: u32) {
     println!("Disconnected from server");
 }
 
-fn handle_server_messages(stream: TcpStream) {
-    let mut reader = BufReader::new(&stream);
-    loop {
-        let mut buffer = String::new();
-        let bytes_read = reader.read_line(&mut buffer).unwrap();
-        if bytes_read == 0 {
-            break;
-        }
-        println!("{}", buffer.trim());
-    }
-    println!("Disconnected from server");
-}
 fn main() {
     let server_port = 6968;
-    let client_port = 6969;
+    let client_port = 6968;
     thread::spawn(move || {
         start_server(server_port);
     });
-    start_client("127.0.0.1", client_port);
+    let handle = thread::spawn(move || {
+        start_client("127.0.0.1", client_port);
+    });
+    handle.join().expect("waiting for the spawned thread to finish");
+    // start_client("127.0.0.1", client_port);
 }
