@@ -11,20 +11,6 @@ use std::{
 
 type Result<T> = result::Result<T, ()>;
 
-// fn handle_client(stream: TcpStream) {
-//     // let mut reader = BufReader::new(stream.try_clone().unwrap());
-//     // let mut writer = BufWriter::new(stream);
-//
-//     let mut reader = BufReader::new(stream);
-//
-//     let mut line = String::new();
-//     reader.read_line(&mut line).unwrap();
-//     println!("Received: {}", line.trim());
-//
-//     // writer.write_all(line.as_bytes()).unwrap();
-//     // writer.flush().unwrap();
-// }
-
 enum Message {
     ClientConnected {
         author: Arc<TcpStream>,
