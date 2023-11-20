@@ -1,4 +1,5 @@
 use crossterm::event::KeyModifiers;
+use crossterm::terminal;
 use crossterm::{
     cursor::MoveTo,
     event::{poll, read, Event},
@@ -7,7 +8,6 @@ use crossterm::{
     terminal::{Clear, ClearType},
     QueueableCommand,
 };
-use crossterm::{terminal, ExecutableCommand};
 use std::io::Stdout;
 use std::{io::stdout, thread, time::Duration};
 
@@ -34,8 +34,6 @@ impl DrawBox {
 }
 
 fn draw_boxes(
-    width: u16,
-    height: u16,
     bar: &str,
     stdout: &mut Stdout,
     prompt: &str,
@@ -103,8 +101,11 @@ fn draw_boxes(
         MoveTo(prompt_drawbox.lower_left.0 + 1, prompt_drawbox.lower_left.1),
         Print(&bar),
         Print("┛"),
-        MoveTo(1, height - 2),
-        // MoveTo(prompt_drawbox.lower_left.0 + 1, prompt_drawbox.lower_right.1),
+        // MoveTo(1, height - 2),
+        MoveTo(
+            prompt_drawbox.lower_left.0 + 1,
+            prompt_drawbox.lower_left.1 - 1
+        ),
         ResetColor,
         Print(&prompt),
     )
@@ -179,16 +180,7 @@ fn main() -> std::io::Result<()> {
             }
         }
         stdout.queue(Clear(ClearType::All))?;
-        draw_boxes(
-            width,
-            height,
-            &bar,
-            &mut stdout,
-            &prompt,
-            &chat,
-            &prompt_drawbox,
-            &chat_drawbox,
-        );
+        draw_boxes(&bar, &mut stdout, &prompt, &chat, &prompt_drawbox, &chat_drawbox);
 
         thread::sleep(Duration::from_millis(33));
     }
