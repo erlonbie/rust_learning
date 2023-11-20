@@ -1,65 +1,197 @@
+use crossterm::event::KeyModifiers;
+use crossterm::{
+    cursor::MoveTo,
+    event::{poll, read, Event},
+    execute,
+    style::{Color, Print, ResetColor, SetForegroundColor},
+    terminal::{Clear, ClearType},
+    QueueableCommand,
+};
+use crossterm::{terminal, ExecutableCommand};
+use std::io::Stdout;
 use std::{io::stdout, thread, time::Duration};
 
-use crossterm::{
-    execute,
-    style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
-    terminal::{Clear, ClearType},
-    event::{read, Event, poll},
-    ExecutableCommand, QueueableCommand, cursor::MoveTo,
-};
+#[derive(Debug, Default)]
+struct Point(u16, u16);
 
+#[derive(Debug, Default)]
+struct DrawBox {
+    upper_left: Point,
+    upper_right: Point,
+    lower_left: Point,
+    lower_right: Point,
+}
+
+impl DrawBox {
+    fn new(upper_left: Point, upper_right: Point, lower_left: Point, lower_right: Point) -> Self {
+        Self {
+            upper_left,
+            upper_right,
+            lower_left,
+            lower_right,
+        }
+    }
+}
+
+fn draw_boxes(
+    width: u16,
+    height: u16,
+    bar: &str,
+    stdout: &mut Stdout,
+    prompt: &str,
+    chat: &[String],
+    prompt_drawbox: &DrawBox,
+    chat_drawbox: &DrawBox,
+) {
+    for (i, line) in chat.iter().enumerate() {
+        let _ = execute!(stdout, MoveTo(2, i as u16 + 1), Print(line));
+    }
+
+    let _ = execute!(
+        stdout,
+        SetForegroundColor(Color::Blue),
+        MoveTo(chat_drawbox.upper_left.0, chat_drawbox.upper_right.1 - 1),
+        Print("┏"),
+        MoveTo(
+            chat_drawbox.upper_left.0 + 1,
+            chat_drawbox.upper_right.1 - 1
+        ),
+        Print(&bar),
+        Print("┓"),
+    );
+
+    let distance = chat_drawbox.lower_left.1 - chat_drawbox.upper_left.1;
+    for i in 0..distance {
+        let _ = execute!(
+            stdout,
+            MoveTo(chat_drawbox.upper_left.0, chat_drawbox.upper_left.1 + i),
+            Print("┃"),
+            MoveTo(chat_drawbox.upper_right.0, chat_drawbox.upper_right.1 + i),
+            Print("┃"),
+        );
+    }
+
+    let _ = execute!(
+        stdout,
+        MoveTo(chat_drawbox.lower_left.0, chat_drawbox.lower_left.1),
+        Print("┗"),
+        MoveTo(chat_drawbox.lower_left.0 + 1, chat_drawbox.lower_left.1),
+        Print(&bar),
+        Print("┛"),
+    );
+
+    let _ = execute!(
+        stdout,
+        SetForegroundColor(Color::Green),
+        MoveTo(prompt_drawbox.upper_left.0, prompt_drawbox.upper_left.1),
+        Print("┏"),
+        MoveTo(prompt_drawbox.upper_left.0 + 1, prompt_drawbox.upper_left.1),
+        Print(&bar),
+        Print("┓"),
+        MoveTo(prompt_drawbox.upper_left.0, prompt_drawbox.lower_left.1 - 1),
+        Print("┃"),
+        // MoveTo(width - 1, height - 2),
+        MoveTo(
+            prompt_drawbox.lower_right.0,
+            prompt_drawbox.lower_left.1 - 1
+        ),
+        Print("┃"),
+        // MoveTo(0, height - 1),
+        MoveTo(prompt_drawbox.lower_left.0, prompt_drawbox.lower_left.1),
+        Print("┗"),
+        // MoveTo(1, height - 1),
+        MoveTo(prompt_drawbox.lower_left.0 + 1, prompt_drawbox.lower_left.1),
+        Print(&bar),
+        Print("┛"),
+        MoveTo(1, height - 2),
+        // MoveTo(prompt_drawbox.lower_left.0 + 1, prompt_drawbox.lower_right.1),
+        ResetColor,
+        Print(&prompt),
+    )
+    .map_err(|err| {
+        eprintln!("draw_boxes ERROR: {}", err);
+    });
+}
 
 fn main() -> std::io::Result<()> {
     // using the macro
     let mut stdout = stdout();
     let (mut width, mut height) = crossterm::terminal::size()?;
-    let mut bar = "-".repeat(width as usize);
-    let label_1 = "Styled text here 1";
+    let mut bar = "━".repeat(width as usize - 2);
+    let mut prompt = String::new();
+    let mut prompt_drawbox = DrawBox::new(
+        Point(width.wrapping_sub(width), height - 3),
+        Point(width, height.wrapping_sub(height) + 3),
+        Point(width.wrapping_sub(width), height - 1),
+        Point(width, height.wrapping_sub(height) + 1),
+    );
+    let mut chat = Vec::new();
+    let mut chat_drawbox = DrawBox::new(
+        Point(width.wrapping_sub(width), height.wrapping_sub(height) + 1),
+        Point(width, height.wrapping_sub(height) + 1),
+        Point(width.wrapping_sub(width), prompt_drawbox.upper_left.1 - 1),
+        Point(width, height.wrapping_sub(prompt_drawbox.upper_right.1) + 1),
+    );
+    terminal::enable_raw_mode().unwrap();
 
     loop {
         if poll(Duration::ZERO)? {
             match read()? {
-                Event::Key(event) => println!("{:?}", event),
+                Event::Key(event) => match event.code {
+                    crossterm::event::KeyCode::Enter => match prompt.len() {
+                        0 => {}
+                        _ => {
+                            chat.push(prompt.clone());
+                            prompt.clear();
+                        }
+                    },
+                    crossterm::event::KeyCode::Char(c) => {
+                        if c == 'c' && event.modifiers.contains(KeyModifiers::CONTROL) {
+                            break;
+                        } else {
+                            prompt.push(c);
+                        }
+                    }
+                    crossterm::event::KeyCode::Backspace => {
+                        prompt.pop();
+                    }
+                    _ => {}
+                },
                 Event::Resize(w, h) => {
                     width = w;
                     height = h;
-                    bar = "-".repeat(w as usize);
+                    prompt_drawbox = DrawBox::new(
+                        Point(w.wrapping_sub(w), h - 3),
+                        Point(w, h.wrapping_sub(h) + 3),
+                        Point(w.wrapping_sub(w), h - 1),
+                        Point(w, h.wrapping_sub(h) + 1),
+                    );
+                    chat_drawbox = DrawBox::new(
+                        Point(w.wrapping_sub(w), h.wrapping_sub(h) + 1),
+                        Point(w, h.wrapping_sub(h) + 1),
+                        Point(w.wrapping_sub(w), prompt_drawbox.upper_left.1 - 1),
+                        Point(w, h.wrapping_sub(prompt_drawbox.upper_right.1) + 1),
+                    );
+                    bar = "━".repeat(w as usize - 2);
                     println!("New size {}x{}", width, height);
                 }
                 _ => {}
             }
-        } else {
-            // Timeout expired and no `Event` is available
-
-        stdout.queue(Clear(ClearType::All))?;
-        execute!(
-            stdout,
-            Clear(ClearType::All),
-            MoveTo(0, height-2),
-            Print(&bar),
-            ResetColor
-        )?;
         }
-    }
+        stdout.queue(Clear(ClearType::All))?;
+        draw_boxes(
+            width,
+            height,
+            &bar,
+            &mut stdout,
+            &prompt,
+            &chat,
+            &prompt_drawbox,
+            &chat_drawbox,
+        );
 
-    // stdout.queue(Clear(ClearType::All))?;
-    //
-    // execute!(
-    //     stdout,
-    //     SetForegroundColor(Color::White),
-    //     SetBackgroundColor(Color::DarkGrey),
-    //     MoveTo(width/2 - label_1.len() as u16/2, height/2),
-    //     Print(label_1),
-    //     ResetColor
-    // )?;
-    //
-    // println!();
-    // // or using functions
-    // stdout
-    //     .execute(SetForegroundColor(Color::Blue))?
-    //     .execute(SetBackgroundColor(Color::Red))?
-    //     .execute(Print("Styled text here 2"))?
-    //     .execute(ResetColor)?;
-    //
-    // thread::sleep(Duration::from_secs(3));
+        thread::sleep(Duration::from_millis(33));
+    }
+    terminal::disable_raw_mode()?;
+    Ok(())
 }
