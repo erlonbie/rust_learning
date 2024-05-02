@@ -20,6 +20,6 @@ mod tests {
     #[test]
     fn it_works2() {
        let result = my_sub(3, 2);
-       assert_eq!(result, -1);
+       assert_eq!(result, 1);
     }
 }
