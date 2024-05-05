@@ -58,6 +58,7 @@ impl WeaponFactory for Knight {
             WeaponType::Sword => Some(Box::new(Sword)),
             WeaponType::Axe => Some(Box::new(Axe)),
             WeaponType::Spear => Some(Box::new(Spear)),
+            WeaponType::Spear => Some(Box::new(Spear)),
         }
     }
 }
@@ -66,16 +67,19 @@ struct Warrior;
 
 impl WeaponFactory for Warrior {
     fn create_weapon(&self, weapon_type: WeaponType) -> Option<Box<dyn Weapon>> {
+
         match weapon_type {
-            WeaponType::Sword => None,
-            WeaponType::Axe => Some(Box::new(Axe)),
-            WeaponType::Spear => None,
+        WeaponType::Sword => None,
+        WeaponType::Axe => Some(Box::new(Axe)),
+        WeaponType::Spear => None,
+        WeaponType::Spear => None,
         }
     }
 }
 
+
 fn main() {
-    let knight = Knight;
+    let knight = Knight {};
     let weapon = knight.create_weapon(WeaponType::Sword);
     let player = Player { weapon };
     player.attack();
