@@ -1,5 +1,31 @@
 use std::fmt;
-use termion::{color, style};
+use termion::{
+    color::{self},
+    style,
+};
+
+struct PokeColor;
+
+impl PokeColor {
+    const LAVENDER: color::Rgb = color::Rgb(168, 144, 240);
+    const CITRUSORANGE: color::Rgb = color::Rgb(240, 128, 48);
+    const CORNFLOWERBLUE: color::Rgb = color::Rgb(104, 144, 240);
+    const SAFFRON: color::Rgb = color::Rgb(248, 208, 48);
+    const SOFTGREEN: color::Rgb = color::Rgb(120, 200, 80);
+    const LIGHTCYAN: color::Rgb = color::Rgb(152, 216, 216);
+    const CRIMSON: color::Rgb = color::Rgb(192, 48, 40);
+    const PLUM: color::Rgb = color::Rgb(160, 64, 160);
+    const SAND: color::Rgb = color::Rgb(224, 192, 104);
+    const OLIVE: color::Rgb = color::Rgb(168, 144, 32);
+    const WATERMELON: color::Rgb = color::Rgb(248, 88, 136);
+    const GOLDENROD: color::Rgb = color::Rgb(168, 184, 32);
+    const STONE: color::Rgb = color::Rgb(184, 160, 56);
+    const DEEPPURPLE: color::Rgb = color::Rgb(112, 88, 152);
+    const ELECTRICINDIGO: color::Rgb = color::Rgb(112, 56, 248);
+    const MOCHA: color::Rgb = color::Rgb(112, 88, 72);
+    const SILVER: color::Rgb = color::Rgb(184, 184, 208);
+    const PASTELPINK: color::Rgb = color::Rgb(238, 153, 172);
+}
 
 enum PokemonTypeColor {
     Normal,
@@ -29,7 +55,7 @@ impl fmt::Display for PokemonTypeColor {
                 write!(
                     f,
                     "{}Normal{}",
-                    color::Fg(color::Rgb(168, 144, 240)),
+                    color::Fg(PokeColor::LAVENDER),
                     style::Reset
                 )
             }
@@ -37,7 +63,7 @@ impl fmt::Display for PokemonTypeColor {
                 write!(
                     f,
                     "{}Fire{}",
-                    color::Fg(color::Rgb(240, 128, 48)),
+                    color::Fg(PokeColor::CITRUSORANGE),
                     style::Reset
                 )
             }
@@ -45,7 +71,7 @@ impl fmt::Display for PokemonTypeColor {
                 write!(
                     f,
                     "{}Water{}",
-                    color::Fg(color::Rgb(104, 144, 240)),
+                    color::Fg(PokeColor::CORNFLOWERBLUE),
                     style::Reset
                 )
             }
@@ -53,7 +79,7 @@ impl fmt::Display for PokemonTypeColor {
                 write!(
                     f,
                     "{}Electric{}",
-                    color::Fg(color::Rgb(248, 208, 48)),
+                    color::Fg(PokeColor::SAFFRON),
                     style::Reset
                 )
             }
@@ -61,79 +87,49 @@ impl fmt::Display for PokemonTypeColor {
                 write!(
                     f,
                     "{}Grass{}",
-                    color::Fg(color::Rgb(120, 200, 80)),
+                    color::Fg(PokeColor::SOFTGREEN),
                     style::Reset
                 )
             }
             PokemonTypeColor::Ice => {
-                write!(
-                    f,
-                    "{}Ice{}",
-                    color::Fg(color::Rgb(152, 216, 216)),
-                    style::Reset
-                )
+                write!(f, "{}Ice{}", color::Fg(PokeColor::LIGHTCYAN), style::Reset)
             }
             PokemonTypeColor::Fighting => {
                 write!(
                     f,
                     "{}Fighting{}",
-                    color::Fg(color::Rgb(192, 48, 40)),
+                    color::Fg(PokeColor::CRIMSON),
                     style::Reset
                 )
             }
             PokemonTypeColor::Poison => {
-                write!(
-                    f,
-                    "{}Poison{}",
-                    color::Fg(color::Rgb(160, 64, 160)),
-                    style::Reset
-                )
+                write!(f, "{}Poison{}", color::Fg(PokeColor::PLUM), style::Reset)
             }
             PokemonTypeColor::Ground => {
-                write!(
-                    f,
-                    "{}Ground{}",
-                    color::Fg(color::Rgb(224, 192, 104)),
-                    style::Reset
-                )
+                write!(f, "{}Ground{}", color::Fg(PokeColor::SAND), style::Reset)
             }
             PokemonTypeColor::Flying => {
-                write!(
-                    f,
-                    "{}Flying{}",
-                    color::Fg(color::Rgb(168, 144, 240)),
-                    style::Reset
-                )
+                write!(f, "{}Flying{}", color::Fg(PokeColor::OLIVE), style::Reset)
             }
             PokemonTypeColor::Psychic => {
                 write!(
                     f,
                     "{}Psychic{}",
-                    color::Fg(color::Rgb(248, 88, 136)),
+                    color::Fg(PokeColor::WATERMELON),
                     style::Reset
                 )
             }
             PokemonTypeColor::Bug => {
-                write!(
-                    f,
-                    "{}Bug{}",
-                    color::Fg(color::Rgb(168, 184, 32)),
-                    style::Reset
-                )
+                write!(f, "{}Bug{}", color::Fg(PokeColor::GOLDENROD), style::Reset)
             }
             PokemonTypeColor::Rock => {
-                write!(
-                    f,
-                    "{}Rock{}",
-                    color::Fg(color::Rgb(184, 160, 56)),
-                    style::Reset
-                )
+                write!(f, "{}Rock{}", color::Fg(PokeColor::STONE), style::Reset)
             }
             PokemonTypeColor::Ghost => {
                 write!(
                     f,
                     "{}Ghost{}",
-                    color::Fg(color::Rgb(112, 88, 152)),
+                    color::Fg(PokeColor::DEEPPURPLE),
                     style::Reset
                 )
             }
@@ -141,31 +137,21 @@ impl fmt::Display for PokemonTypeColor {
                 write!(
                     f,
                     "{}Dragon{}",
-                    color::Fg(color::Rgb(112, 56, 248)),
+                    color::Fg(PokeColor::ELECTRICINDIGO),
                     style::Reset
                 )
             }
             PokemonTypeColor::Dark => {
-                write!(
-                    f,
-                    "{}Dark{}",
-                    color::Fg(color::Rgb(112, 88, 72)),
-                    style::Reset
-                )
+                write!(f, "{}Dark{}", color::Fg(PokeColor::MOCHA), style::Reset)
             }
             PokemonTypeColor::Steel => {
-                write!(
-                    f,
-                    "{}Steel{}",
-                    color::Fg(color::Rgb(184, 184, 208)),
-                    style::Reset
-                )
+                write!(f, "{}Steel{}", color::Fg(PokeColor::SILVER), style::Reset)
             }
             PokemonTypeColor::Fairy => {
                 write!(
                     f,
                     "{}Fairy{}",
-                    color::Fg(color::Rgb(238, 153, 172)),
+                    color::Fg(PokeColor::PASTELPINK),
                     style::Reset
                 )
             }
