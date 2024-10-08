@@ -1,31 +1,64 @@
 use std::fmt;
 use termion::{
-    color::{self},
+    color::{self, Rgb},
     style,
 };
+
+macro_rules! define_colors {
+    ($($name:ident: $r:expr, $g:expr, $b:expr;)*) => {
+        $(
+            pub const $name: Rgb = Rgb($r, $g, $b);
+        )*
+    };
+}
 
 struct PokeColor;
 
 impl PokeColor {
-    const LAVENDER: color::Rgb = color::Rgb(168, 144, 240);
-    const CITRUSORANGE: color::Rgb = color::Rgb(240, 128, 48);
-    const CORNFLOWERBLUE: color::Rgb = color::Rgb(104, 144, 240);
-    const SAFFRON: color::Rgb = color::Rgb(248, 208, 48);
-    const SOFTGREEN: color::Rgb = color::Rgb(120, 200, 80);
-    const LIGHTCYAN: color::Rgb = color::Rgb(152, 216, 216);
-    const CRIMSON: color::Rgb = color::Rgb(192, 48, 40);
-    const PLUM: color::Rgb = color::Rgb(160, 64, 160);
-    const SAND: color::Rgb = color::Rgb(224, 192, 104);
-    const OLIVE: color::Rgb = color::Rgb(168, 144, 32);
-    const WATERMELON: color::Rgb = color::Rgb(248, 88, 136);
-    const GOLDENROD: color::Rgb = color::Rgb(168, 184, 32);
-    const STONE: color::Rgb = color::Rgb(184, 160, 56);
-    const DEEPPURPLE: color::Rgb = color::Rgb(112, 88, 152);
-    const ELECTRICINDIGO: color::Rgb = color::Rgb(112, 56, 248);
-    const MOCHA: color::Rgb = color::Rgb(112, 88, 72);
-    const SILVER: color::Rgb = color::Rgb(184, 184, 208);
-    const PASTELPINK: color::Rgb = color::Rgb(238, 153, 172);
+    define_colors! {
+        LAVENDER: 168, 144, 240;
+        CITRUSORANGE: 240, 128, 48;
+        CORNFLOWERBLUE: 104, 144, 240;
+        SAFFRON: 248, 208, 48;
+        SOFTGREEN: 120, 200, 80;
+        LIGHTCYAN: 152, 216, 216;
+        CRIMSON: 192, 48, 40;
+        PLUM: 160, 64, 160;
+        SAND: 224, 192, 104;
+        OLIVE: 168, 144, 32;
+        WATERMELON: 248, 88, 136;
+        GOLDENROD: 168, 184, 32;
+        STONE: 184, 160, 56;
+        DEEPPURPLE: 112, 88, 152;
+        ELECTRICINDIGO: 112, 56, 248;
+        MOCHA: 112, 88, 72;
+        SILVER: 184, 184, 208;
+        PASTELPINK: 238, 153, 172;
+    }
 }
+
+// struct PokeColor;
+//
+// impl PokeColor {
+//     const LAVENDER: color::Rgb = color::Rgb(168, 144, 240);
+//     const CITRUSORANGE: color::Rgb = color::Rgb(240, 128, 48);
+//     const CORNFLOWERBLUE: color::Rgb = color::Rgb(104, 144, 240);
+//     const SAFFRON: color::Rgb = color::Rgb(248, 208, 48);
+//     const SOFTGREEN: color::Rgb = color::Rgb(120, 200, 80);
+//     const LIGHTCYAN: color::Rgb = color::Rgb(152, 216, 216);
+//     const CRIMSON: color::Rgb = color::Rgb(192, 48, 40);
+//     const PLUM: color::Rgb = color::Rgb(160, 64, 160);
+//     const SAND: color::Rgb = color::Rgb(224, 192, 104);
+//     const OLIVE: color::Rgb = color::Rgb(168, 144, 32);
+//     const WATERMELON: color::Rgb = color::Rgb(248, 88, 136);
+//     const GOLDENROD: color::Rgb = color::Rgb(168, 184, 32);
+//     const STONE: color::Rgb = color::Rgb(184, 160, 56);
+//     const DEEPPURPLE: color::Rgb = color::Rgb(112, 88, 152);
+//     const ELECTRICINDIGO: color::Rgb = color::Rgb(112, 56, 248);
+//     const MOCHA: color::Rgb = color::Rgb(112, 88, 72);
+//     const SILVER: color::Rgb = color::Rgb(184, 184, 208);
+//     const PASTELPINK: color::Rgb = color::Rgb(238, 153, 172);
+// }
 
 enum PokemonTypeColor {
     Normal,

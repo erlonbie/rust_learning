@@ -1,7 +1,7 @@
 use crate::color::handle_type_color;
 use crate::models::Pokemon;
 use console::style;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 pub fn print_base_status(pokemon: Pokemon) {
     print!("Stats:");
@@ -34,9 +34,9 @@ pub fn print_basic_info<'a>(pokemon: &'a Pokemon, ptypes: &mut Vec<&'a str>) {
 }
 
 pub fn print_type_effectiveness(final_type_effectivenes: &HashMap<&str, f32>) {
-    let mut weak_to: HashMap<&str, f32> = HashMap::new();
-    let mut strong_against: HashMap<&str, f32> = HashMap::new();
-    let mut normal_damage_to: HashMap<&str, f32> = HashMap::new();
+    let mut weak_to: BTreeMap<&str, f32> = BTreeMap::new();
+    let mut strong_against: BTreeMap<&str, f32> = BTreeMap::new();
+    let mut normal_damage_to: BTreeMap<&str, f32> = BTreeMap::new();
 
     final_type_effectivenes.iter().for_each(|(k, v)| {
         if *v > 1.0 {
