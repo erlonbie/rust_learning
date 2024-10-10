@@ -36,13 +36,21 @@ fn main() {
 
     let mut v3 = Vec::new();
     v3.extend(v1);
-    for mut x in v2 {
-        if !v3.contains(&x) {
-            v3.push(x);
+    v2.iter().for_each(|x| {
+        if !v3.contains(x) {
+            v3.push(*x);
         } else {
-            x.body = "both".to_string(); 
-            println!("{x:?}");
+            x.body = "both".to_string();
+            println!("{:?}", x);
         }
-    }
+    });
+    // for mut x in v2 {
+    //     if !v3.contains(&x) {
+    //         v3.push(x);
+    //     } else {
+    //         x.body = "both".to_string();
+    //         println!("{x:?}");
+    //     }
+    // }
     // println!("{:?}", v3);
 }

@@ -8,7 +8,7 @@ use crossterm::{
     terminal::{Clear, ClearType},
     QueueableCommand,
 };
-use std::io::Stdout;
+use std::io::{Stdout, Write};
 use std::{io::stdout, thread, time::Duration};
 
 #[derive(Debug, Default)]
@@ -180,10 +180,35 @@ fn main() -> std::io::Result<()> {
             }
         }
         stdout.queue(Clear(ClearType::All))?;
+
+        chat_window(&mut stdout, &chat, Rec {
+            x: 1,
+            y: 1,
+            width,
+            height: height - 5,
+        } );
+
         draw_boxes(&bar, &mut stdout, &prompt, &chat, &prompt_drawbox, &chat_drawbox);
 
         thread::sleep(Duration::from_millis(33));
     }
     terminal::disable_raw_mode()?;
     Ok(())
+}
+
+struct Rec {
+    x: u16,
+    y: u16,
+    width: u16,
+    height: u16,
+}
+
+fn chat_window(stdout: &mut impl Write, chat: &[String], drawbox: Rec) {
+    let n = chat.len();
+    let m = n.checked_sub(drawbox.height as usize).unwrap_or(0);
+    for (y, line) in chat.iter().skip(m).enumerate() {
+        stdout.queue(MoveTo(drawbox.x, drawbox.y + y as u16)).unwrap();
+        // stdout.queue(Print(line)).unwrap();
+        stdout.write_all(" ".as_bytes()).unwrap();
+    }
 }
