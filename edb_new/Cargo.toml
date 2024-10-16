@@ -1,0 +1,18 @@
+[package]
+name = "edb_new"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+futures-io = "=0.3.31"
+serde = "1.0.210"
+anyhow = "1.0.89"
+edgedb-tokio = "0.5.1"
+edgedb-protocol = "0.6.1"
+edgedb-derive = "0.5.2"
+tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
+uuid = { version = "1.10.0", features = ["serde"] }
+reqwest={ version = "0.12.8", features = ["json", "blocking"] }
+serde_json = "1.0.128"
