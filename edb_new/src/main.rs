@@ -8,6 +8,7 @@ use serde_json;
 
 #[derive(Debug, Serialize, Queryable)]
 pub struct Pokemon {
+    pub poke_id: i16,
     pub name: String,
     pub height: f64,
     pub weight: f64,
@@ -26,6 +27,7 @@ pub struct Pokemon {
 impl Pokemon {
     fn into_json(&self) -> String {
         serde_json::json!({
+            "poke_id": self.poke_id,
             "name": self.name,
             "height": self.height,
             "weight": self.weight,
@@ -81,7 +83,7 @@ async fn fetch_pokemon(id: i32) -> Result<PokeApiResponse, Error> {
     response.json::<PokeApiResponse>().await
 }
 
-async fn insert_pokemon(client: &Client, pokemon: PokeApiResponse) {
+async fn insert_pokemon(client: &Client, pokemon: PokeApiResponse, id: i16) {
     let height = pokemon.height as f64 / 10.0;
     let weight = pokemon.weight as f64 / 10.0;
 
@@ -120,6 +122,7 @@ async fn insert_pokemon(client: &Client, pokemon: PokeApiResponse) {
     let speed = *stats_map.get("speed").unwrap_or(&0) as i16;
 
     let pokemon_data = Pokemon {
+        poke_id: id,
         name: name.clone(),
         height,
         weight,
@@ -135,7 +138,7 @@ async fn insert_pokemon(client: &Client, pokemon: PokeApiResponse) {
         speed,
     };
 
-    let insert_data = vec![&pokemon_data];
+    // let insert_data = vec![&pokemon_data];
     // let insert_data_str = serde_json::to_string(&insert_data).unwrap();
     let as_value = pokemon_data.into_json();
 
@@ -146,6 +149,7 @@ async fn insert_pokemon(client: &Client, pokemon: PokeApiResponse) {
     let query = r#"
         WITH pokemon := to_json(<str>$0),
         INSERT Pokemon {
+            poke_id := <int16>json_get(pokemon,'poke_id'),
             name := <str>json_get(pokemon,'name'),
             height := <float64>json_get(pokemon,'height'),
             weight := <float64>json_get(pokemon,'weight'),
@@ -203,7 +207,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Ok(pokemon) => {
                     let client = edgedb_tokio::create_client().await.unwrap();
                     println!("Fetched: {} (ID: {})", pokemon.name, id);
-                    insert_pokemon(&client, pokemon).await;
+                    insert_pokemon(&client, pokemon, id as i16).await;
                 }
                 Err(e) => {
                     eprintln!("Failed to fetch or insert Pokemon ID {}: {}", id, e);

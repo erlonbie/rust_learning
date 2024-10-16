@@ -2,6 +2,7 @@ module default {
     
     # Define the main Pokemon type
     type Pokemon {
+        required poke_id: int16;
         required name: str {
             constraint exclusive;
         }
