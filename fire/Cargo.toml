@@ -1,0 +1,9 @@
+[package]
+name = "fire"
+version = "0.1.0"
+#edition = "2024"
+
+[dependencies]
+firedbg-lib = "0.1"
+fastrand = "2"
+structopt = "0.3"

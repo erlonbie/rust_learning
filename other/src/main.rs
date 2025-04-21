@@ -22,6 +22,7 @@ fn main() {
     let mut aa: BTreeMap<_, _> = BTreeMap::new();
     aa.insert("abc", 123);
     aa.insert("def", 456);
+    aa.insert("ghi", 789);
 
     println!("{:?}", aa);
     for (key, value) in aa.iter() {

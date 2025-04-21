@@ -1,0 +1,7 @@
+[package]
+name = "testes"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cargo-nextest = "0.9.93"

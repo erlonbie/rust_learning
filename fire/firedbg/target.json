@@ -1,0 +1,12 @@
+{
+  "binaries": [
+    {
+      "name": "fire",
+      "src_path": "/Users/erlonbie/teste/rust_learning/fire/src/main.rs",
+      "required_features": []
+    }
+  ],
+  "examples": [],
+  "integration_tests": [],
+  "unit_tests": []
+}

@@ -1,0 +1,12 @@
+{
+  "binaries": [
+    {
+      "name": "old_toolchain",
+      "src_path": "/Users/erlonbie/teste/rust_learning/old_toolchain/src/main.rs",
+      "required_features": []
+    }
+  ],
+  "examples": [],
+  "integration_tests": [],
+  "unit_tests": []
+}

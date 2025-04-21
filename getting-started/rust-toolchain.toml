@@ -1,0 +1,6 @@
+[toolchain]
+channel = "1.81.0"
+# edition = "2021"
+# components = [ "rustfmt", "clippy" ]
+targets = [ "1.81.0-x86_64-apple-darwin" ]
+

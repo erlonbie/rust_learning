@@ -1,0 +1,14 @@
+{
+  "binaries": [],
+  "examples": [],
+  "integration_tests": [],
+  "unit_tests": [
+    {
+      "package_name": "quicksort",
+      "test_cases": [
+        "test::test_quicksort_1",
+        "test::test_quicksort_2"
+      ]
+    }
+  ]
+}
